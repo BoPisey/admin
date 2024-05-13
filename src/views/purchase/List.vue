@@ -2,7 +2,12 @@
   <CRow>
     <CCol>
       <CCard>
-        <CCardHeader class="header">Purchase</CCardHeader>
+        <CCardHeader class="header">Purchase
+          <div v-if="!loading"  class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <CButton color="primary" @click="handleClick">Create</CButton>
+          </div>
+        </CCardHeader>
+       
         <CCardBody>
           <div>
             <input type="text" v-model="searchKey" placeholder="Search by name or phone number" class="search-input">
@@ -13,6 +18,8 @@
                   <th>Customer Information</th>
                   <th>Amount</th>
                   <th>Date</th>
+                  <th>Actions</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -20,6 +27,9 @@
                   <td>{{ purchase.customer.name }} | {{ purchase.customer.phone }}</td>
                   <td>{{ purchase.amount | Number }} USD</td>
                   <td>{{ formatDate(purchase.created_at) }}</td>
+                  <td>
+                    <CButton color="danger" @click="deletePurchase(purchase.id)">Delete</CButton>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -33,7 +43,7 @@
 <script>
 // Import CoreUI components
 import axios from 'axios';
-import { CRow, CCol, CCard, CCardHeader, CCardBody } from '@coreui/vue';
+import { CRow, CCol, CCard, CCardHeader, CCardBody,CButton } from '@coreui/vue';
 
 export default {
   components: {
@@ -41,7 +51,8 @@ export default {
     CCol,
     CCard,
     CCardHeader,
-    CCardBody
+    CCardBody,
+    CButton
   },
   data() {
     return {
@@ -49,6 +60,7 @@ export default {
       searchKey: '', // Initialize search key
     };
   },
+  
   async mounted() {
     await this.fetchpurchase(); // Fetch purchase data on component mount
   },
@@ -68,15 +80,37 @@ export default {
           }
         });
         this.purchase = response.data.data; // Assign fetched data to purchase array
-        console.log(this.purchase);
       } catch (error) {
         console.error('Error fetching purchase data:', error);
       }
     },
+    async deletePurchase(purchaseId) {
+      try {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          throw new Error('Access token not found');
+        }
+        await axios.delete(`http://localhost:3046/api/puchases/${purchaseId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        });
+        // Filter out the deleted customer from the customers array
+        this.purchase = this.purchase.filter(purchase => purchase.id !== purchaseId);
+      } catch (error) {
+        console.error('Error deleting purchase:', error);
+      }
+    },
+    
     formatDate(date) {
       // Function to format date
       return new Date(date).toLocaleDateString();
+    },
+    handleClick() {
+      this.$router.push({ path: '/puchase/create' });
+
     }
+    
   },
   watch: {
     // Watch for changes in search key and fetch purchase accordingly
@@ -97,8 +131,8 @@ export default {
         (customer.customer.name ?? '').toLowerCase().includes(this.searchKey.toLowerCase())
       );
     }
-  }
-
+  },
+  
 
 };
 </script>

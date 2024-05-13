@@ -2,27 +2,29 @@
   <CRow>
     <CCol>
       <CCard>
-        <CCardHeader class="header">Purchase</CCardHeader>
+        <CCardHeader class="header"> Create New Purchase</CCardHeader>
         <CCardBody>
           <div>
-            <input type="text" v-model="searchKey" placeholder="Search by name or phone number" class="search-input">
+            <!-- Input with datalist -->
+            <input type="text" list="customerOptions" v-model="selectedCustomerName" @input="updateSelectedCustomerId"
+              placeholder="Search customers by name or phone number" class="custom-input"/>
+            <datalist id="customerOptions">
+              <!-- Dynamically generate options based on filtered customers -->
+              <option v-for="customer in filteredCustomers" :key="customer.id" :value="customer.name"></option>
+            </datalist>
 
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Customer Information</th>
-                  <th>Amount</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(purchase, index) in filteredpurchase" :key="index">
-                  <td>{{ purchase.customer.name }} | {{ purchase.customer.phone }}</td>
-                  <td>{{ purchase.amount | Number }} USD</td>
-                  <td>{{ formatDate(purchase.created_at) }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="custom-input"></div>
+            <!-- Input for Purchase Amount -->
+            <CFormInput type="number" size="lg" v-model="purchaseAmount" placeholder="Amount" required
+              class="custom-input" />
+            <!-- Submit Button -->
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <CButton type="submit" color="primary" @click="createPurchase" class="custom-button">Create</CButton>
+
+            </div>
+            <!-- Display message if available -->
+            <p v-if="message" class="message">{{ message }}</p>
           </div>
         </CCardBody>
       </CCard>
@@ -31,9 +33,9 @@
 </template>
 
 <script>
-// Import CoreUI components
+import { CRow, CCol, CCard, CCardHeader, CCardBody, CButton, CFormInput } from '@coreui/vue';
+
 import axios from 'axios';
-import { CRow, CCol, CCard, CCardHeader, CCardBody } from '@coreui/vue';
 
 export default {
   components: {
@@ -41,90 +43,97 @@ export default {
     CCol,
     CCard,
     CCardHeader,
-    CCardBody
+    CCardBody,
+    CButton,
+    CFormInput
   },
   data() {
     return {
-      purchase: [], // Initialize purchase data array
-      searchKey: '', // Initialize search key
+      selectedCustomerName: '', // Holds the selected customer name
+      selectedCustomerId: '', // Holds the selected customer ID
+      purchaseAmount: '', // Holds the purchase amount
+      message: '', // Holds success or error messages
+      searchKey: '', // Holds the search key for filtering customers
+      customers: [] // Holds the list of customers
     };
   },
   async mounted() {
-    await this.fetchpurchase(); // Fetch purchase data on component mount
+    await this.fetchCustomers(); // Fetch customers when the component is mounted
   },
   methods: {
-    async fetchpurchase() {
+    async fetchCustomers() {
       try {
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
           throw new Error('Access token not found');
         }
-        const response = await axios.get('http://localhost:3046/api/puchases', {
+        const response = await axios.get('http://localhost:3046/api/puchases/customer', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: {
-            key: this.searchKey // Pass search key as a query parameter
+            Authorization: `Bearer ${accessToken}`
           }
         });
-        this.purchase = response.data.data; // Assign fetched data to purchase array
-        console.log(this.purchase);
+        this.customers = response.data;
       } catch (error) {
-        console.error('Error fetching purchase data:', error);
+        console.error('Error fetching customer data:', error);
       }
     },
-    formatDate(date) {
-      // Function to format date
-      return new Date(date).toLocaleDateString();
-    }
-  },
-  watch: {
-    // Watch for changes in search key and fetch purchase accordingly
-    searchKey(newVal) {
-      this.fetchpurchase();
-    }
-  },
-
-  computed: {
-    filteredpurchase() {
-      // Check if this.purchase is defined before filtering
-      if (!Array.isArray(this.purchase)) {
-        return [];
+    updateSelectedCustomerId() {
+      const selectedCustomer = this.customers.find(customer => customer.name === this.selectedCustomerName);
+      if (selectedCustomer) {
+        this.selectedCustomerId = selectedCustomer.id;
       }
-      // Filter purchase based on search key
-      return this.purchase.filter(customer =>
-        (customer.customer.name ?? '').toLowerCase().includes(this.searchKey.toLowerCase()) ||
-        (customer.customer.name ?? '').toLowerCase().includes(this.searchKey.toLowerCase())
+    },
+    async createPurchase() {
+      try {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          throw new Error('Access token not found');
+        }
+        const response = await axios.post('http://localhost:3046/api/puchases/create', {
+          customer_id: this.selectedCustomerId,
+          amount: this.purchaseAmount,
+        }, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        this.message = response.data.message;
+
+        console.log('New puchase created:', response.data);
+        // Optionally, you can navigate to another route after creating the customer
+        this.$router.push({ path: '/puchase' });
+      } catch (error) {
+        console.error('Error creating customer:', error);
+      }
+    }
+  },
+  computed: {
+    filteredCustomers() {
+      if (!this.searchKey) {
+        return this.customers;
+      }
+      const searchKeyLowerCase = this.searchKey.toLowerCase();
+      return this.customers.filter(customer =>
+        customer.name.toLowerCase().includes(searchKeyLowerCase) ||
+        customer.phone.toLowerCase().includes(searchKeyLowerCase)
       );
     }
   }
-
-
 };
 </script>
 
 <style scoped>
-.search-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
+.custom-button {
+  margin-top: 10px;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.message {
+  color: green;
 }
 
-.table th,
-.table td {
-  border: 1px solid #e5e3e3;
-  padding: 8px;
-}
+.custom-input {
+  padding-bottom: 10px !important;
 
-.table th {
-  background-color: #f0f0f0;
-  text-align: left;
 }
 </style>
