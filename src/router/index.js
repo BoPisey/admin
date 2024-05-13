@@ -1,6 +1,6 @@
 import { h, resolveComponent } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import AuthService from '../../src/services/AuthService'; // Import your authentication service
+// import AuthService from '../../src/services/AuthService';
 
 import DefaultLayout from '@/layouts/DefaultLayout'
 
@@ -8,7 +8,7 @@ const routes = [
   {
     path: '/',
     component: DefaultLayout,
-    redirect: '/dashboard',
+    redirect: '/login',
     children: [
       {
         path: 'dashboard',
@@ -45,7 +45,6 @@ const routes = [
 
 ];
 
-
 const router = createRouter({
   history: createWebHashHistory(process.env.BASE_URL),
   routes,
@@ -54,23 +53,5 @@ const router = createRouter({
     return { top: 0 }
   },
 })
-// Navigation guard to check authentication status
-router.beforeEach((to, from, next) => {
-  const authService = new AuthService(); // Instantiate your authentication service
-  const isAuthenticated = authService.isAuthenticated();
-
-  // Check if the route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // If not authenticated, redirect to login page
-    if (!isAuthenticated) {
-      next('/login');
-    } else {
-      next();
-    }
-  } else {
-    // If route does not require authentication, proceed
-    next();
-  }
-});
 
 export default router
