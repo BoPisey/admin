@@ -9,7 +9,14 @@
         </CCardHeader>
        
         <CCardBody>
-          <div>
+          <div v-if="loading" class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <!-- Vue Spinner Growing component -->
+            <CButton color="primary" disabled>
+             <CSpinner as="span" size="sm" variant="grow" aria-hidden="true" />
+             Loading... 
+            </CButton>
+          </div>
+          <div v-else>
             <input type="text" v-model="searchKey" placeholder="Search by name or phone number" class="search-input">
 
             <table class="table">
@@ -58,6 +65,7 @@ export default {
     return {
       purchase: [], // Initialize purchase data array
       searchKey: '', // Initialize search key
+      loading: false, // Initialize loading state
     };
   },
   
@@ -66,6 +74,7 @@ export default {
   },
   methods: {
     async fetchpurchase() {
+      this.loading = true; // Set loading state to true before fetching data
       try {
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
@@ -80,8 +89,11 @@ export default {
           }
         });
         this.purchase = response.data.data; // Assign fetched data to purchase array
+        this.loading = false; // Set loading state to false after data is fetched
       } catch (error) {
         console.error('Error fetching purchase data:', error);
+        this.loading = false; // Set loading state to false if there's an error
+
       }
     },
     async deletePurchase(purchaseId) {
