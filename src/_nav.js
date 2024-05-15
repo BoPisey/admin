@@ -18,8 +18,8 @@ export default [
 
   {
     component: 'CNavItem',
-    name: 'Puchase',
-    to: '/puchase',
+    name: 'Purchase',
+    to: '/purchase',
     icon: 'cil-notes',
   },
 

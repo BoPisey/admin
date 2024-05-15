@@ -107,8 +107,7 @@ export default {
       return new Date(date).toLocaleDateString();
     },
     handleClick() {
-      this.$router.push({ path: '/puchase/create' });
-
+      this.$router.push({ path: '/purchase/create' });
     }
     
   },
@@ -161,4 +160,5 @@ export default {
   background-color: #f0f0f0;
   text-align: left;
 }
+
 </style>

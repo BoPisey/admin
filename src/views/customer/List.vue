@@ -95,7 +95,9 @@ export default {
       console.error('Error fetching customers data:', error);
       this.loading = false; // Set loading state to false if there's an error
     }
+    
   },
+
   methods: {
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString();
@@ -118,10 +120,10 @@ export default {
       }
     },
     handleClick() {
-      this.$router.push({ path: '/customer/create' });
-
-    }
+      this.$router.push({ path: '/customer/create' }); // Corrected path
+    },
   },
+  
   computed: {
     filteredCustomers() {
       // Filter customers based on search key

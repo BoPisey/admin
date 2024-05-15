@@ -16,5 +16,4 @@ app.use(CoreuiVue)
 app.provide('icons', icons)
 app.component('CIcon', CIcon)
 app.component('DocsExample', DocsExample)
-
 app.mount('#app')

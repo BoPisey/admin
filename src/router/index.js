@@ -1,8 +1,5 @@
-import { h, resolveComponent } from 'vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
-// import AuthService from '../../src/services/AuthService';
-
-import DefaultLayout from '@/layouts/DefaultLayout'
+import { createRouter, createWebHashHistory } from 'vue-router';
+import DefaultLayout from '@/layouts/DefaultLayout';
 
 const routes = [
   {
@@ -14,25 +11,24 @@ const routes = [
         path: 'dashboard',
         component: () => import('@/views/dashboard/Dashboard.vue')
       },
-
       {
         path: '/customer',
-        name: 'Customer',
+        name: 'CustomerList',
         component: () => import('@/views/customer/List.vue'),
       },
       {
-        path: '/customer/create',
-        name: 'Create',
+        path: '/customer/create', // Corrected path
+        name: 'CustomerCreate', // Unique name
         component: () => import('@/views/customer/Create.vue'),
       },
       {
-        path: '/puchase',
-        name: 'Puchase',
+        path: '/purchase', // Corrected typo in path
+        name: 'PurchaseList', // Unique name
         component: () => import('@/views/purchase/List.vue'),
       },
       {
-        path: '/puchase/create',
-        name: 'Create',
+        path: '/purchase/create', // Corrected typo in path
+        name: 'PurchaseCreate', // Unique name
         component: () => import('@/views/purchase/Create.vue'),
       },
     ],
@@ -42,16 +38,14 @@ const routes = [
     name: 'Login',
     component: () => import('@/views/login.vue')
   },
-
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes,
   scrollBehavior() {
-    // always scroll to top
-    return { top: 0 }
+    return { top: 0 };
   },
-})
+});
 
-export default router
+export default router;

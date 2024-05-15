@@ -93,5 +93,5 @@ export default {
 
 .message {
   color: green;
-  /* You can adjust the color as needed */
-}</style>
+}
+</style>

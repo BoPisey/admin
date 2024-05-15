@@ -5,13 +5,13 @@
         <CCardHeader class="header"> Create New Purchase</CCardHeader>
         <CCardBody>
           <div>
-            <!-- Input with datalist -->
-            <input type="text" list="customerOptions" v-model="selectedCustomerName" @input="updateSelectedCustomerId"
-              placeholder="Search customers by name or phone number" class="custom-input"/>
-            <datalist id="customerOptions">
-              <!-- Dynamically generate options based on filtered customers -->
-              <option v-for="customer in filteredCustomers" :key="customer.id" :value="customer.name"></option>
-            </datalist>
+            <div class="customer-search-container">
+              <input type="text" list="customerOptions" v-model="selectedCustomerName" @input="updateSelectedCustomerId" style="border: 1px solid #ccc;"
+                placeholder="Search customers by name or phone number" class="custom-input" />
+              <datalist id="customerOptions">
+                <option v-for="customer in filteredCustomers" :key="customer.id" :value="customer.name"></option>
+              </datalist>
+            </div>
 
             <div class="custom-input"></div>
             <!-- Input for Purchase Amount -->
@@ -100,9 +100,9 @@ export default {
         });
         this.message = response.data.message;
 
-        console.log('New puchase created:', response.data);
+        console.log('New purchase created:', response.data);
         // Optionally, you can navigate to another route after creating the customer
-        this.$router.push({ path: '/puchase' });
+        this.$router.push({ path: '/purchase' });
       } catch (error) {
         console.error('Error creating customer:', error);
       }
@@ -135,5 +135,37 @@ export default {
 .custom-input {
   padding-bottom: 10px !important;
 
+}
+
+.customer-search-container {
+  position: relative;
+  /* max-width: 400px; */
+  margin: 0 auto;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  /* border: 1px solid #ccc; */
+  border-radius: 5px;
+  transition: border-color 0.3s;
+}
+
+.custom-input:focus {
+  border-color: #928df2;
+  outline: none;
+  box-shadow: 0 0 8px rgba(124, 119, 235, 0.6);
+}
+
+.datalist {
+  display: none;
+}
+
+.datalist option {
+  padding: 8px;
+  font-size: 16px;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
 }
 </style>
